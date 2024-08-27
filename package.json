@@ -1,13 +1,13 @@
 {
   "name": "bitflow",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.js",
   "type": "module",
   "scripts": {
     "prepare": "husky",
     "cleanup": "rm -rf dist && rm -rf node_modules",
-    "dev": "tsx watch src/http/index.ts",
-    "start": "tsc && node dist/index"
+    "dev": "tsx watch src/app.ts",
+    "start": "tsc && node dist/app"
   },
   "keywords": [],
   "author": "",
@@ -27,7 +27,8 @@
     "fastify-cors": "^6.1.0",
     "fastify-jwt": "^4.2.0",
     "fastify-plugin": "^4.5.1",
-    "fastify-swagger": "^5.2.0"
+    "fastify-swagger": "^5.2.0",
+    "pino-pretty": "^11.2.2"
   },
   "devDependencies": {
     "@types/node": "^22.5.0",

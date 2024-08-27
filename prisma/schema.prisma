@@ -12,35 +12,34 @@ model User {
   name         String?
   email        String   @unique
   passwordHash String?  @map("password_hash")
+  salt         String?  @map("salt")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  tokens   Token[]
-  accounts Account[]
+  deposits     Deposit[]
+  Balance      Balance[]
 
   @@map("users")
 }
 
-enum TokenType {
-  PASSWORD_RECOVER
+model Deposit {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  amount    Float    @map("amount")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("deposits")
 }
 
-model Token {
-  id        String    @id @default(uuid())
-  type      TokenType
-  createdAt DateTime  @default(now()) @map("created_at")
+model Balance {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  amount    Float    @map("amount")
+  createdAt DateTime @default(now()) @map("created_at")
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String @map("user_id")
+  user User @relation(fields: [userId], references: [id])
 
-  @@map("tokens")
-}
-
-model Account {
-  id String @id @default(uuid())
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String @map("user_id")
-
-  @@map("accounts")
+  @@map("balances")
 }

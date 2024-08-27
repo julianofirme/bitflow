@@ -4,8 +4,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "husky"
+    "prepare": "husky",
+    "cleanup": "rm -rf dist && rm -rf node_modules",
+    "dev": "tsx watch src/http/index.ts",
+    "start": "tsc && node dist/index"
   },
   "keywords": [],
   "author": "",

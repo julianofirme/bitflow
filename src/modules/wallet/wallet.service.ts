@@ -27,7 +27,9 @@ export async function deposit(amount: number, userId: string) {
       id: wallet.id,
     },
     data: {
-      amount,
+      amount: {
+        increment: amount,
+      },
     },
   })
 }

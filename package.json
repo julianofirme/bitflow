@@ -30,6 +30,7 @@
     "fastify-swagger": "^5.2.0",
     "fastify-zod": "^1.4.0",
     "pino-pretty": "^11.2.2",
+    "resend": "^4.0.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

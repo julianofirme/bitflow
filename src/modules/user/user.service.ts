@@ -13,3 +13,11 @@ export async function createUser(input: CreateUserInput) {
 
   return user
 }
+
+export async function findUserByEmail(email: string) {
+  return await db.user.findUnique({
+    where: {
+      email,
+    },
+  })
+}

@@ -28,7 +28,9 @@
     "fastify-jwt": "^4.2.0",
     "fastify-plugin": "^4.5.1",
     "fastify-swagger": "^5.2.0",
-    "pino-pretty": "^11.2.2"
+    "fastify-zod": "^1.4.0",
+    "pino-pretty": "^11.2.2",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^22.5.0",

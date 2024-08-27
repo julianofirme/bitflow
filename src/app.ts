@@ -1,4 +1,6 @@
 import fastify from 'fastify'
+import userRoutes from './modules/user/user.route.js'
+import { userSchemas } from './modules/user/user.schema.js'
 
 const PORT = 3000
 
@@ -17,6 +19,12 @@ server.get('/healthcheck', async function () {
 })
 
 async function main() {
+  for (const schema of userSchemas) {
+    server.addSchema(schema)
+  }
+
+  server.register(userRoutes)
+
   try {
     await server.listen({
       port: PORT,

@@ -6,14 +6,19 @@ export async function getUserBalanceHandler(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
+  const logger = request.log
+
   try {
     const userId = await request.getCurrentUserId()
+    logger.info(`Fetching wallet balance for user ${userId}`)
 
     const balance = await getUserWalletBalance(userId)
 
+    logger.info(`Fetched balance: ${balance?.amount} for user ${userId}`)
     return balance
   } catch (e) {
-    return await reply.code(500).send(e)
+    logger.error(`Error fetching balance: ${(e as Error).message}`)
+    return await reply.code(500).send({ error: 'Internal Server Error' })
   }
 }
 
@@ -23,14 +28,21 @@ export async function depositHandler(
   }>,
   reply: FastifyReply,
 ) {
+  const logger = request.log
+
   try {
     const userId = await request.getCurrentUserId()
     const { amount } = request.body
 
+    logger.info(`User ${userId} attempting to deposit ${amount} reais`)
+
     const wallet = await deposit(amount, userId)
+
+    logger.info(`User ${userId} deposited ${amount} reais successfully`)
 
     return wallet
   } catch (e) {
-    return await reply.code(500).send(e)
+    logger.error(`Error depositing amount: ${(e as Error).message}`)
+    return await reply.code(500).send({ error: 'Internal Server Error' })
   }
 }

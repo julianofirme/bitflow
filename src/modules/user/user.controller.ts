@@ -14,15 +14,19 @@ export async function registerUserHandler(
   reply: FastifyReply,
 ) {
   const body = request.body
+  const logger = request.log
 
   try {
+    logger.info(`Registering new user with email: ${body.email}`)
     const user = await createUser(body)
-    await createUserWallet(user)
+    const wallet = await createUserWallet(user)
 
+    logger.info(`User registered successfully with ID: ${user.id}`)
+    logger.info(`User wallet successfully created with ID: ${wallet.id}`)
     return await reply.code(201).send(user)
   } catch (e) {
-    console.log(e)
-    return await reply.code(500).send(e)
+    logger.error(`Error registering user: ${(e as Error).message}`)
+    return await reply.code(500).send({ error: 'Internal Server Error' })
   }
 }
 
@@ -33,37 +37,49 @@ export async function loginHandler(
   reply: FastifyReply,
 ) {
   const body = request.body
+  const logger = request.log
 
-  const user = await findUserByEmail(body.email)
+  try {
+    logger.info(`User attempting login with email: ${body.email}`)
+    const user = await findUserByEmail(body.email)
 
-  if (!user) {
-    return await reply.code(401).send({
-      message: 'Invalid email or password',
+    if (!user) {
+      logger.warn(`Failed login attempt with non-existent email: ${body.email}`)
+      return await reply.code(401).send({
+        message: 'Invalid email or password',
+      })
+    }
+
+    const isValidPassword = verifyPassword({
+      candidatePassword: body.password,
+      salt: user.salt,
+      hash: user.passwordHash,
     })
-  }
 
-  const isValidPassword = verifyPassword({
-    candidatePassword: body.password,
-    salt: user.salt,
-    hash: user.passwordHash,
-  })
+    if (!isValidPassword) {
+      logger.warn(
+        `Failed login attempt for user ID: ${user.id} with invalid password`,
+      )
+      return await reply.status(401).send({
+        message: 'Invalid password',
+      })
+    }
 
-  if (!isValidPassword) {
-    return await reply.status(401).send({
-      message: 'Invalid password',
-    })
-  }
-
-  const token = await reply.jwtSign(
-    {
-      sub: user.id,
-    },
-    {
-      sign: {
-        expiresIn: '7d',
+    const token = await reply.jwtSign(
+      {
+        sub: user.id,
       },
-    },
-  )
+      {
+        sign: {
+          expiresIn: '7d',
+        },
+      },
+    )
 
-  return await reply.status(201).send({ token })
+    logger.info(`User logged in successfully with ID: ${user.id}`)
+    return await reply.status(201).send({ token })
+  } catch (e) {
+    logger.error(`Error during login: ${(e as Error).message}`)
+    return await reply.code(500).send({ error: 'Internal Server Error' })
+  }
 }

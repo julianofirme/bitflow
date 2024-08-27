@@ -17,7 +17,7 @@ model User {
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   deposits     Deposit[]
-  Balance      Balance[]
+  Wallet      Wallet[]
 
   @@map("users")
 }
@@ -33,7 +33,7 @@ model Deposit {
   @@map("deposits")
 }
 
-model Balance {
+model Wallet {
   id        String   @id @default(uuid())
   userId    String   @map("user_id")
   amount    Float    @map("amount")
@@ -41,5 +41,5 @@ model Balance {
 
   user User @relation(fields: [userId], references: [id])
 
-  @@map("balances")
+  @@map("wallets")
 }

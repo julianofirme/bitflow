@@ -1,6 +1,10 @@
 import { type FastifyReply, type FastifyRequest } from 'fastify'
 import { type LoginInput, type CreateUserInput } from './user.schema.js'
-import { createUser, findUserByEmail } from './user.service.js'
+import {
+  createUser,
+  createUserWallet,
+  findUserByEmail,
+} from './user.service.js'
 import { verifyPassword } from '../../utils/hash.js'
 
 export async function registerUserHandler(
@@ -13,6 +17,7 @@ export async function registerUserHandler(
 
   try {
     const user = await createUser(body)
+    await createUserWallet(user)
 
     return await reply.code(201).send(user)
   } catch (e) {

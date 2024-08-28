@@ -1,5 +1,4 @@
 import type { FastifyInstance } from 'fastify'
-import { ZodError } from 'zod'
 import { BadRequestError } from '../errors/bad-request-error.js'
 import { UnauthorizedError } from '../errors/unauthorized-error.js'
 
@@ -8,11 +7,10 @@ type FastifyErrorHandler = FastifyInstance['errorHandler']
 export const errorHandler: FastifyErrorHandler = (error, request, reply) => {
   const logger = request.log
 
-  if (error instanceof ZodError) {
+  if (error.code === 'FST_ERR_VALIDATION') {
     logger.error(error)
     reply.status(400).send({
-      message: 'Validation error',
-      errors: error.flatten().fieldErrors,
+      error: 'Validation error',
     })
   }
 

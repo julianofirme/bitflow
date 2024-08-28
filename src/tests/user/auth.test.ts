@@ -71,7 +71,7 @@ describe('User Authentication and Registration', () => {
     })
 
     expect(response.statusCode).toBe(401)
-    expect(response.json()).toEqual({ message: 'Invalid email or password' })
+    expect(response.json()).toEqual({ error: 'Invalid email or password' })
   })
 
   test('should not login with non-existent email', async () => {
@@ -82,6 +82,28 @@ describe('User Authentication and Registration', () => {
     })
 
     expect(response.statusCode).toBe(401)
-    expect(response.json()).toEqual({ message: 'Invalid email or password' })
+    expect(response.json()).toEqual({ error: 'Invalid email or password' })
+  })
+
+  test('should not login with non-valid email schema', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/login',
+      payload: { email: 'nonvalidemail', password: 'password' },
+    })
+
+    expect(response.statusCode).toBe(400)
+    expect(response.json()).toEqual({ error: 'Validation error' })
+  })
+
+  test('should not register with non-valid schema', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/account',
+      payload: { email: 'nonvalidemail', password: 'password' },
+    })
+
+    expect(response.statusCode).toBe(400)
+    expect(response.json()).toEqual({ error: 'Validation error' })
   })
 })

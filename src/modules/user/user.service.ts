@@ -1,43 +1,35 @@
-import { type User } from '@prisma/client'
 import { db } from '../../lib/prisma.js'
 import { hashPassword } from '../../utils/hash.js'
 import { type CreateUserInput } from './user.schema.js'
 
-export async function createUser(input: CreateUserInput) {
-  const { password, ...rest } = input
+export async function createUserWithWalletService(input: CreateUserInput) {
+  return db.$transaction(async (transaction) => {
+    const { password, ...rest } = input
+    const { hash, salt } = hashPassword(password)
 
-  const { hash, salt } = hashPassword(password)
+    const user = await transaction.user.create({
+      data: { ...rest, salt, passwordHash: hash },
+    })
 
-  const user = await db.user.create({
-    data: { ...rest, salt, passwordHash: hash },
-  })
+    const wallet = await transaction.wallet.create({
+      data: {
+        amount: 0,
+        userId: user.id,
+      },
+    })
 
-  return user
-}
-
-export async function createUserWallet(user: User) {
-  const wallet = db.wallet.create({
-    data: {
-      amount: 0,
-      userId: user.id,
-    },
-  })
-
-  return wallet
-}
-
-export async function findUserByEmail(email: string) {
-  return await db.user.findUnique({
-    where: {
-      email,
-    },
+    return { user, wallet }
   })
 }
 
-export async function findUserById(id: string) {
-  return await db.user.findUnique({
-    where: {
-      id,
-    },
+export async function findUserByEmailService(email: string) {
+  return db.user.findUnique({
+    where: { email },
+  })
+}
+
+export async function findUserByIdService(id: string) {
+  return db.user.findUnique({
+    where: { id },
   })
 }

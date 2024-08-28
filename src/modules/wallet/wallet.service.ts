@@ -14,22 +14,26 @@ export async function getUserWalletBalance(userId: string) {
 }
 
 export async function deposit(amount: number, userId: string) {
-  const wallet = await db.wallet.findFirst({
-    where: { userId },
-  })
+  return await db.$transaction(async (transaction) => {
+    const wallet = await transaction.wallet.findFirst({
+      where: { userId },
+    })
 
-  if (!wallet) {
-    throw new Error('invalid wallet')
-  }
+    if (!wallet) {
+      throw new Error('invalid wallet')
+    }
 
-  return db.wallet.update({
-    where: {
-      id: wallet.id,
-    },
-    data: {
-      amount: {
-        increment: amount,
+    const updatedWallet = await transaction.wallet.update({
+      where: {
+        id: wallet.id,
       },
-    },
+      data: {
+        amount: {
+          increment: amount,
+        },
+      },
+    })
+
+    return updatedWallet
   })
 }

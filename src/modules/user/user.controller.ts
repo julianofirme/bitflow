@@ -1,9 +1,8 @@
 import { type FastifyReply, type FastifyRequest } from 'fastify'
 import { type LoginInput, type CreateUserInput } from './user.schema.js'
 import {
-  createUser,
-  createUserWallet,
-  findUserByEmail,
+  createUserWithWalletService,
+  findUserByEmailService,
 } from './user.service.js'
 import { verifyPassword } from '../../utils/hash.js'
 
@@ -18,15 +17,14 @@ export async function registerUserHandler(
 
   try {
     logger.info(`Registering new user with email: ${body.email}`)
-    const user = await createUser(body)
-    const wallet = await createUserWallet(user)
+    const { user, wallet } = await createUserWithWalletService(body)
 
     logger.info(`User registered successfully with ID: ${user.id}`)
     logger.info(`User wallet successfully created with ID: ${wallet.id}`)
-    return await reply.code(201).send(user)
+    return reply.code(201).send(user)
   } catch (e) {
     logger.error(`Error registering user: ${(e as Error).message}`)
-    return await reply.code(500).send({ error: 'Internal Server Error' })
+    return reply.code(500).send({ error: 'Internal Server Error' })
   }
 }
 
@@ -41,11 +39,11 @@ export async function loginHandler(
 
   try {
     logger.info(`User attempting login with email: ${body.email}`)
-    const user = await findUserByEmail(body.email)
+    const user = await findUserByEmailService(body.email)
 
     if (!user) {
       logger.warn(`Failed login attempt with non-existent email: ${body.email}`)
-      return await reply.code(401).send({
+      return reply.code(401).send({
         message: 'Invalid email or password',
       })
     }
@@ -60,7 +58,7 @@ export async function loginHandler(
       logger.warn(
         `Failed login attempt for user ID: ${user.id} with invalid password`,
       )
-      return await reply.status(401).send({
+      return reply.status(401).send({
         message: 'Invalid password',
       })
     }
@@ -77,9 +75,9 @@ export async function loginHandler(
     )
 
     logger.info(`User logged in successfully with ID: ${user.id}`)
-    return await reply.status(201).send({ token })
+    return reply.status(201).send({ token })
   } catch (e) {
     logger.error(`Error during login: ${(e as Error).message}`)
-    return await reply.code(500).send({ error: 'Internal Server Error' })
+    return reply.code(500).send({ error: 'Internal Server Error' })
   }
 }

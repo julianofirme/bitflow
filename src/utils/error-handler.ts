@@ -6,7 +6,6 @@ import { UnauthorizedError } from '../errors/unauthorized-error.js'
 type FastifyErrorHandler = FastifyInstance['errorHandler']
 
 export const errorHandler: FastifyErrorHandler = (error, request, reply) => {
-  console.log('🚀 ~ error:', error)
   const logger = request.log
 
   if (error instanceof ZodError) {

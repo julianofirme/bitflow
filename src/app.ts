@@ -2,14 +2,13 @@
 import fastify from 'fastify'
 import fjwt from '@fastify/jwt'
 import fastifyCors from '@fastify/cors'
+import 'dotenv/config'
 import userRoutes from './modules/user/user.route.js'
-import { userSchemas } from './modules/user/user.schema.js'
 import walletRoutes from './modules/wallet/wallet.route.js'
+import { userSchemas } from './modules/user/user.schema.js'
 import { walletSchemas } from './modules/wallet/wallet.schema.js'
 
-const PORT = 3000
-
-const server = fastify({
+const app = fastify({
   logger: {
     transport: {
       target: 'pino-pretty',
@@ -17,38 +16,26 @@ const server = fastify({
   },
 })
 
-server.register(fjwt, {
+app.register(fjwt, {
   secret: process.env.JWT_SECRET!,
 })
 
-server.register(fastifyCors, {
+app.register(fastifyCors, {
   origin: '*',
   credentials: true,
 })
 
-server.get('/healthcheck', async function () {
+app.get('/healthcheck', async function () {
   return {
-    status: 'OK',
+    status: 'ok',
   }
 })
 
-async function main() {
-  for (const schema of [...userSchemas, ...walletSchemas]) {
-    server.addSchema(schema)
-  }
+app.register(userRoutes)
+app.register(walletRoutes)
 
-  server.register(userRoutes)
-  server.register(walletRoutes)
-
-  try {
-    await server.listen({
-      port: PORT,
-      host: '0.0.0.0',
-    })
-  } catch (e) {
-    server.log.error(e)
-    process.exit(1)
-  }
+for (const schema of [...userSchemas, ...walletSchemas]) {
+  app.addSchema(schema)
 }
 
-main()
+export default app

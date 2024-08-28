@@ -1,6 +1,7 @@
 import Bull from 'bull'
 import { db } from '../lib/prisma.js'
 import { logger } from '../logger/logger.js'
+import { fetchTickerData } from '../integration/btc.api.js'
 
 export const orderQueue = new Bull('order-queue', {
   redis: { host: '127.0.0.1', port: 6379 },
@@ -15,6 +16,8 @@ orderQueue.process(async (job) => {
     throw new Error('Wallet not found during order processing')
   }
 
+  const currentBTC = await fetchTickerData()
+
   if (type === 'buy') {
     await db.wallet.update({
       where: { id: wallet.id },
@@ -24,6 +27,22 @@ orderQueue.process(async (job) => {
       `Purchase of ${amount} BTC for user ${userId} has been processed`,
     )
   }
+
+  if (wallet.amount_btc < amount) {
+    throw new Error(`Insufficient BTC balance to sell for user ${userId}`)
+  }
+
+  await db.$transaction(async (transaction) => {
+    await transaction.wallet.update({
+      where: { id: wallet.id },
+      data: { amount_btc: { decrement: amount } },
+    })
+    await transaction.wallet.update({
+      where: { id: wallet.id },
+      data: { amount: { increment: amount * Number(currentBTC.sell) } },
+    })
+  })
+  logger.info(`Sale of ${amount} BTC for user ${userId} has been processed`)
 })
 
 orderQueue.on('completed', (job) => {

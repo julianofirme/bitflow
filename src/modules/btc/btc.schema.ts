@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { buildJsonSchemas } from 'fastify-zod'
 
-const purchaseSchema = z.object({
+const exchangeSchema = z.object({
   amount: z
     .number({
       required_error: 'Amount is required',
@@ -9,12 +9,12 @@ const purchaseSchema = z.object({
     .nonnegative(),
 })
 
-export type PurchaseInput = z.infer<typeof purchaseSchema>
+export type ExchangeInput = z.infer<typeof exchangeSchema>
 
 const models = {
-  purchaseSchema,
+  exchangeSchema,
 }
 
-export const { schemas: purchaseSchemas, $ref } = buildJsonSchemas(models, {
+export const { schemas: exchangeSchemas, $ref } = buildJsonSchemas(models, {
   $id: 'btcSchema',
 })

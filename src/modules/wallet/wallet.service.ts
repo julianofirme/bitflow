@@ -9,6 +9,7 @@ export async function getUserWalletBalance(userId: string) {
       id: true,
       userId: true,
       amount: true,
+      amount_btc: true,
     },
   })
 }

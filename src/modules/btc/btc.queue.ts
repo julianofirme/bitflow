@@ -6,7 +6,7 @@ export async function queueOrder(
   amount: number,
   userId: string,
 ) {
-  await validateUserBalance(userId, amount)
+  await validateUserBalance(type, userId, amount)
 
   await orderQueue.add({ type, amount, userId })
 }

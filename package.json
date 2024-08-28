@@ -9,7 +9,7 @@
     "dev": "tsx watch src/server.ts",
     "start": "tsc && node dist/server",
     "test:int": "env-cmd -f .env.test ./scripts/run-integration.sh",
-    "coverage": "vitest run --coverage"
+    "coverage": "env-cmd -f .env.test vitest run --coverage"
   },
   "keywords": [],
   "author": "",

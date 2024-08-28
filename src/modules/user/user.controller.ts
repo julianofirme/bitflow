@@ -5,6 +5,7 @@ import {
   findUserByEmailService,
 } from './user.service.js'
 import { verifyPassword } from '../../utils/hash.js'
+import { UnauthorizedError } from '../../errors/unauthorized-error.js'
 
 export async function registerUserHandler(
   request: FastifyRequest<{
@@ -37,9 +38,7 @@ export async function loginHandler(
 
   if (!user) {
     logger.warn(`Failed login attempt with non-existent email: ${body.email}`)
-    return reply.code(401).send({
-      message: 'Invalid email or password',
-    })
+    throw new UnauthorizedError('Invalid email or password')
   }
 
   const isValidPassword = verifyPassword({
@@ -52,9 +51,8 @@ export async function loginHandler(
     logger.warn(
       `Failed login attempt for user ID: ${user.id} with invalid password`,
     )
-    return reply.status(401).send({
-      message: 'Invalid password',
-    })
+
+    throw new UnauthorizedError('Invalid email or password')
   }
 
   const token = await reply.jwtSign(

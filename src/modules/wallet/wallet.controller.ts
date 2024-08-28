@@ -10,18 +10,13 @@ export async function getUserBalanceHandler(
 ) {
   const logger = request.log
 
-  try {
-    const userId = await request.getCurrentUserId()
-    logger.info(`Fetching wallet balance for user ${userId}`)
+  const userId = await request.getCurrentUserId()
+  logger.info(`Fetching wallet balance for user ${userId}`)
 
-    const balance = await getUserWalletBalance(userId)
+  const balance = await getUserWalletBalance(userId)
 
-    logger.info(`Fetched balance: ${balance?.amount} for user ${userId}`)
-    return balance
-  } catch (e) {
-    logger.error(`Error fetching balance: ${(e as Error).message}`)
-    return await reply.code(500).send({ error: 'Internal Server Error' })
-  }
+  logger.info(`Fetched balance: ${balance?.amount} for user ${userId}`)
+  return balance
 }
 
 export async function depositHandler(
@@ -32,38 +27,33 @@ export async function depositHandler(
 ) {
   const logger = request.log
 
-  try {
-    const userId = await request.getCurrentUserId()
-    const user = await findUserByIdService(userId)
+  const userId = await request.getCurrentUserId()
+  const user = await findUserByIdService(userId)
 
-    if (!user) {
-      return await reply.code(404).send({ error: 'User not found' })
-    }
-
-    const { amount } = request.body
-    logger.info(`User ${userId} attempting to deposit ${amount} reais`)
-
-    const wallet = await deposit(amount, userId)
-
-    logger.info(`User ${userId} deposited ${amount} reais successfully`)
-
-    const { data, error } = await sendMail({
-      body: `Hi ${user.name}, the value of ${amount} reais has been deposited in your account!`,
-      subject: 'Deposit',
-      to: user.email,
-    })
-
-    if (error) {
-      logger.error(`Error sending email: ${error.message}`)
-    } else {
-      logger.info(
-        `Email ID: ${data?.id} - Deposit email was sent to user ${userId}`,
-      )
-    }
-
-    return await reply.code(200).send(wallet)
-  } catch (e) {
-    logger.error(`Error depositing amount: ${(e as Error).message}`)
-    return await reply.code(500).send({ error: 'Internal Server Error' })
+  if (!user) {
+    return await reply.code(404).send({ error: 'User not found' })
   }
+
+  const { amount } = request.body
+  logger.info(`User ${userId} attempting to deposit ${amount} reais`)
+
+  const wallet = await deposit(amount, userId)
+
+  logger.info(`User ${userId} deposited ${amount} reais successfully`)
+
+  const { data, error } = await sendMail({
+    body: `Hi ${user.name}, the value of ${amount} reais has been deposited in your account!`,
+    subject: 'Deposit',
+    to: user.email,
+  })
+
+  if (error) {
+    logger.error(`Error sending email: ${error.message}`)
+  } else {
+    logger.info(
+      `Email ID: ${data?.id} - Deposit email was sent to user ${userId}`,
+    )
+  }
+
+  return await reply.code(200).send(wallet)
 }

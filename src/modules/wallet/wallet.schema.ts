@@ -6,12 +6,20 @@ const userBalanceResponseSchema = z.object({
 })
 
 const depositSchema = z.object({
-  amount: z.number().positive(),
+  amount: z
+    .number({
+      required_error: 'Amount is required',
+    })
+    .nonnegative(),
 })
 
 export type DepositInput = z.infer<typeof depositSchema>
 
-export const { schemas: walletSchemas, $ref } = buildJsonSchemas({
+const models = {
   userBalanceResponseSchema,
   depositSchema,
+}
+
+export const { schemas: walletSchemas, $ref } = buildJsonSchemas(models, {
+  $id: 'walletSchema',
 })

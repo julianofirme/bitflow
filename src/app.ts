@@ -5,6 +5,7 @@ import fastifyCors from '@fastify/cors'
 import userRoutes from './modules/user/user.route.js'
 import { userSchemas } from './modules/user/user.schema.js'
 import walletRoutes from './modules/wallet/wallet.route.js'
+import { walletSchemas } from './modules/wallet/wallet.schema.js'
 
 const PORT = 3000
 
@@ -32,7 +33,7 @@ server.get('/healthcheck', async function () {
 })
 
 async function main() {
-  for (const schema of [...userSchemas]) {
+  for (const schema of [...userSchemas, ...walletSchemas]) {
     server.addSchema(schema)
   }
 

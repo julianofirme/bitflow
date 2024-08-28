@@ -1,13 +1,15 @@
 {
   "name": "bitflow",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
     "prepare": "husky",
     "cleanup": "rm -rf dist && rm -rf node_modules",
-    "dev": "tsx watch src/app.ts",
-    "start": "tsc && node dist/app"
+    "dev": "tsx watch src/server.ts",
+    "start": "tsc && node dist/server",
+    "test:int": "env-cmd -f .env.test ./scripts/run-integration.sh",
+    "coverage": "vitest run --coverage"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +24,8 @@
     "@fastify/swagger": "^8.15.0",
     "@fastify/type-provider-typebox": "^4.1.0",
     "@prisma/client": "^5.19.0",
+    "dotenv": "^16.4.5",
+    "env-cmd": "^10.1.0",
     "fastify": "^4.28.1",
     "fastify-cli": "^6.3.0",
     "fastify-cors": "^6.1.0",
@@ -35,6 +39,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.5.0",
+    "@vitest/coverage-v8": "^2.0.5",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-standard-with-typescript": "^43.0.1",
     "fastify-tsconfig": "^2.0.0",
@@ -46,7 +51,8 @@
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
   },
   "lint-staged": {
     "*.{js, jsx,ts,tsx}": [

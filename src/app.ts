@@ -7,6 +7,7 @@ import userRoutes from './modules/user/user.route.js'
 import walletRoutes from './modules/wallet/wallet.route.js'
 import { userSchemas } from './modules/user/user.schema.js'
 import { walletSchemas } from './modules/wallet/wallet.schema.js'
+import { errorHandler } from './utils/error-handler.js'
 
 const app = fastify({
   logger: {
@@ -15,6 +16,7 @@ const app = fastify({
     },
   },
 })
+app.setErrorHandler(errorHandler)
 
 app.register(fjwt, {
   secret: process.env.JWT_SECRET!,

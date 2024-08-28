@@ -21,6 +21,7 @@ export async function createUserWithWalletService(input: CreateUserInput) {
     const wallet = await transaction.wallet.create({
       data: {
         amount: 0,
+        amount_btc: 0,
         userId: user.id,
       },
     })

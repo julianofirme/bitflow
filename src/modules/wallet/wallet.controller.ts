@@ -1,7 +1,7 @@
 import { type FastifyReply, type FastifyRequest } from 'fastify'
 import { getUserWalletBalance, deposit } from './wallet.service.js'
 import { type DepositInput } from './wallet.schema.js'
-import { sendMail } from '../../service/mail.js'
+import { sendMail } from '../../integration/mail.js'
 import { findUserByIdService } from '../user/user.service.js'
 
 export async function getUserBalanceHandler(

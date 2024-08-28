@@ -37,6 +37,7 @@ model Wallet {
   id        String   @id @default(uuid())
   userId    String   @map("user_id")
   amount    Float    @map("amount")
+  amount_btc    Float    @map("amount_btc")
   createdAt DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id])

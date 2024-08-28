@@ -37,3 +37,28 @@ export async function deposit(amount: number, userId: string) {
     return updatedWallet
   })
 }
+
+export async function depositBTC(amount: number, userId: string) {
+  return await db.$transaction(async (transaction) => {
+    const wallet = await transaction.wallet.findFirst({
+      where: { userId },
+    })
+
+    if (!wallet) {
+      throw new Error('invalid wallet')
+    }
+
+    const updatedWallet = await transaction.wallet.update({
+      where: {
+        id: wallet.id,
+      },
+      data: {
+        amount_btc: {
+          increment: amount,
+        },
+      },
+    })
+
+    return updatedWallet
+  })
+}

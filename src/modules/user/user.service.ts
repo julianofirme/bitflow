@@ -9,7 +9,6 @@ export async function createUserWithWalletService(input: CreateUserInput) {
     const { hash, salt } = hashPassword(password)
 
     const isUserExists = await findUserByEmailService(input.email)
-    console.log('🚀 ~ isUserExists:', isUserExists)
 
     if (isUserExists) {
       throw new BadRequestError('User already exists')

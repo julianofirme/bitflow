@@ -1,6 +1,5 @@
 import Bull from 'bull'
 import { db } from '../lib/prisma.js'
-import { fetchTickerData } from '../integration/btc.api.js'
 import { logger } from '../logger/logger.js'
 
 export const orderQueue = new Bull('order-queue', {
@@ -16,18 +15,10 @@ orderQueue.process(async (job) => {
     throw new Error('Wallet not found during order processing')
   }
 
-  const currentBTC = await fetchTickerData()
-
   if (type === 'buy') {
-    await db.$transaction(async (transaction) => {
-      await transaction.wallet.update({
-        where: { id: wallet.id },
-        data: { amount_btc: { increment: amount } },
-      })
-      await transaction.wallet.update({
-        where: { id: wallet.id },
-        data: { amount: { decrement: amount * Number(currentBTC.buy) } },
-      })
+    await db.wallet.update({
+      where: { id: wallet.id },
+      data: { amount_btc: { increment: amount } },
     })
     logger.info(
       `Purchase of ${amount} BTC for user ${userId} has been processed`,

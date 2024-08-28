@@ -1,7 +1,19 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import axios from 'axios'
 
-export async function fetchTickerData() {
+interface TickerData {
+  high: string
+  low: string
+  vol: string
+  last: string
+  buy: string
+  sell: string
+  open: string
+  date: number
+  pair: string
+}
+
+export async function fetchTickerData(): Promise<TickerData> {
   try {
     const response = await axios.get(
       'https://www.mercadobitcoin.net/api/BTC/ticker/',

@@ -1,52 +1,29 @@
 import Bull from 'bull'
-import { db } from '../lib/prisma.js'
 import { logger } from '../logger/logger.js'
-import { fetchTickerData } from '../integration/btc.api.js'
-import { NotFoundError } from '../errors/not-found-error.js'
-import { BadRequestError } from '../errors/bad-request-error.js'
+import {
+  processPurchase,
+  processSale,
+} from '../modules/investment/investment.service.js'
+
+interface JobDataProps {
+  type: 'buy' | 'sell'
+  amount: number
+  userId: string
+  investmentId: string
+}
 
 export const orderQueue = new Bull('order-queue', {
   redis: { host: '127.0.0.1', port: 6379 },
 })
 
-orderQueue.process(async (job) => {
-  const { type, amount, userId } = job.data
-
-  const wallet = await db.wallet.findFirst({ where: { userId } })
-
-  if (!wallet) {
-    throw new NotFoundError('Wallet not found during order processing')
-  }
-
-  const currentBTC = await fetchTickerData()
+orderQueue.process(async (job: { data: JobDataProps }) => {
+  const { type, amount, userId, investmentId } = job.data
 
   if (type === 'buy') {
-    await db.wallet.update({
-      where: { id: wallet.id },
-      data: { amount_btc: { increment: amount } },
-    })
-    logger.info(
-      `Purchase of ${amount} BTC for user ${userId} has been processed`,
-    )
+    await processPurchase(userId, amount)
+  } else if (type === 'sell') {
+    await processSale(userId, investmentId, amount)
   }
-
-  if (type === 'sell' && wallet.amount_btc < amount) {
-    throw new BadRequestError(
-      `Insufficient BTC balance to sell for user ${userId}`,
-    )
-  }
-
-  await db.$transaction(async (transaction) => {
-    await transaction.wallet.update({
-      where: { id: wallet.id },
-      data: { amount_btc: { decrement: amount } },
-    })
-    await transaction.wallet.update({
-      where: { id: wallet.id },
-      data: { amount: { increment: amount * Number(currentBTC.sell) } },
-    })
-  })
-  logger.info(`Sale of ${amount} BTC for user ${userId} has been processed`)
 })
 
 orderQueue.on('completed', (job) => {

@@ -42,19 +42,14 @@ export async function depositHandler(
 
   logger.info(`User ${userId} deposited ${amount} reais successfully`)
 
-  const { data, error } = await sendMail({
-    body: `Hi ${user.name}, the value of ${amount} reais has been deposited in your account!`,
-    subject: 'Deposit',
-    to: user.email,
-  })
-
-  if (error) {
-    logger.error(`Error sending email: ${error.message}`)
-  } else {
-    logger.info(
-      `Email ID: ${data?.id} - Deposit email was sent to user ${userId}`,
-    )
-  }
+  await sendMail(
+    {
+      body: `Hi ${user.name}, the value of ${amount} reais has been deposited in your account!`,
+      subject: 'Deposit',
+      to: user.email,
+    },
+    userId,
+  )
 
   return await reply.code(200).send(wallet)
 }

@@ -1,49 +1,59 @@
-import { type Investment, type Wallet } from '@prisma/client'
-import { BadRequestError } from '../../errors/bad-request-error.js'
 import { NotFoundError } from '../../errors/not-found-error.js'
 import { fetchTickerData } from '../../integration/btc.api.js'
 import { db } from '../../lib/prisma.js'
 import { sendMail } from '../../integration/mail.js'
 import { logger } from '../../logger/logger.js'
 import { findUserByIdService } from '../user/user.service.js'
+import {
+  validatePurchase,
+  validateSale,
+} from '../../utils/wallet-validations.js'
+import { type User } from '@prisma/client'
 
-async function validatePurchase(wallet: Wallet, btc: any, amount: number) {
-  const purchaseValue = Number(btc.buy) * amount
-
-  if (wallet.amount < purchaseValue) {
-    throw new BadRequestError('Insufficient funds')
-  }
-}
-
-async function validateSale(
-  wallet: Wallet,
-  investment: Investment,
-  amount: number,
-) {
-  if (wallet.amount_btc < amount) {
-    throw new BadRequestError('Insufficient BTC balance in wallet to sell')
-  }
-
-  if (investment.btcAmount < amount) {
-    throw new BadRequestError('Insufficient BTC balance in investment to sell')
-  }
-}
-
-export async function processPurchase(userId: string, amount: number) {
-  const wallet = await db.wallet.findFirst({ where: { userId } })
-  const btc = await fetchTickerData()
-  const user = await findUserByIdService(userId)
+async function getUserBasicInfo(userId: string) {
+  const [wallet, btc, user] = await Promise.all([
+    db.wallet.findFirst({ where: { userId } }),
+    fetchTickerData(),
+    findUserByIdService(userId),
+  ])
 
   if (!user) {
     throw new NotFoundError('User not found')
   }
-  if (!wallet) throw new NotFoundError('Wallet not found')
+  if (!wallet) {
+    throw new NotFoundError('Wallet not found')
+  }
 
+  return { wallet, btc, user }
+}
+
+async function sendPurchaseMail(
+  user: User,
+  amount: number,
+  purchaseValue: number,
+) {
+  await sendMail({
+    body: `Hi ${user.name}, the value of ${amount} BTC for ${purchaseValue.toFixed(2)} BRL has been purchased!`,
+    subject: 'BTC Purchase',
+    to: user.email,
+  })
+}
+
+async function sendSaleMail(user: User, amount: number, saleValue: number) {
+  await sendMail({
+    body: `Hi ${user.name}, the value of ${amount} BTC has been sold for ${saleValue.toFixed(2)}!`,
+    subject: 'BTC Sold',
+    to: user.email,
+  })
+}
+
+export async function processPurchase(userId: string, amount: number) {
+  const { user, btc, wallet } = await getUserBasicInfo(userId)
   await validatePurchase(wallet, btc, amount)
 
   const purchaseValue = Number(btc.buy) * amount
 
-  const investmnent = await db.investment.create({
+  const investment = await db.investment.create({
     data: {
       userId,
       amountInvested: purchaseValue,
@@ -60,20 +70,13 @@ export async function processPurchase(userId: string, amount: number) {
     },
   })
 
-  await sendMail(
-    {
-      body: `Hi ${user.name}, the value of ${amount} BTC for ${purchaseValue.toFixed(2)} BRL has been purchase!`,
-      subject: 'BTC Purchase',
-      to: user.email,
-    },
-    userId,
-  )
+  await sendPurchaseMail(user, amount, purchaseValue)
 
   logger.info(
-    `Purchase of ${amount} BTC from investment ${investmnent.id} for user ${userId} has been processed`,
+    `Purchase of ${amount} BTC from investment ${investment.id} for user ${userId} has been processed`,
   )
 
-  return investmnent
+  return investment
 }
 
 export async function processSale(
@@ -81,19 +84,15 @@ export async function processSale(
   position: string,
   amount: number,
 ) {
-  const wallet = await db.wallet.findFirst({ where: { userId } })
-  const btc = await fetchTickerData()
-  const user = await findUserByIdService(userId)
+  const { user, btc, wallet } = await getUserBasicInfo(userId)
+
   const investment = await db.investment.findFirst({
     where: { id: position, userId },
   })
 
-  if (!user) {
-    throw new NotFoundError('User not found')
+  if (!investment) {
+    throw new NotFoundError('Investment not found')
   }
-  if (!wallet) throw new NotFoundError('Wallet not found')
-
-  if (!investment) throw new NotFoundError('Investment not found')
 
   await validateSale(wallet, investment, amount)
 
@@ -113,28 +112,20 @@ export async function processSale(
       await transaction.investment.delete({
         where: { id: investment.id },
       })
+    } else {
+      const remainingInvestmentValue =
+        remainingBTC * investment.btcPriceAtPurchase
+      await transaction.investment.update({
+        where: { id: investment.id },
+        data: {
+          btcAmount: remainingBTC,
+          amountInvested: remainingInvestmentValue,
+        },
+      })
     }
-
-    const remainingInvestmentValue =
-      remainingBTC * investment.btcPriceAtPurchase
-
-    await transaction.investment.update({
-      where: { id: investment.id },
-      data: {
-        btcAmount: remainingBTC,
-        amountInvested: remainingInvestmentValue,
-      },
-    })
   })
 
-  await sendMail(
-    {
-      body: `Hi ${user.name}, the value of ${amount} BTC has been sold for ${saleValue.toFixed(2)}!`,
-      subject: 'BTC Sold',
-      to: user.email,
-    },
-    userId,
-  )
+  await sendSaleMail(user, amount, saleValue)
 
   logger.info(
     `Sale of ${amount} BTC from investment ${position} for user ${userId} has been processed`,

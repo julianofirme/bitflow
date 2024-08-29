@@ -1,13 +1,7 @@
 import { type FastifyReply, type FastifyRequest } from 'fastify'
-import {
-  getInvestmentPosition,
-  processPurchase,
-  processSale,
-} from './investment.service.js'
+import { getInvestmentPosition } from './investment.service.js'
 import { type SellInput, type ExchangeInput } from './investment.schema.js'
-import { sendMail } from '../../integration/mail.js'
-import { findUserByIdService } from '../user/user.service.js'
-import { NotFoundError } from '../../errors/not-found-error.js'
+import { queueOrder } from './investment.queue.js'
 
 export async function getInvestmentPositionHandler(
   request: FastifyRequest,
@@ -27,21 +21,9 @@ export async function buyOrderHandler(
 ) {
   const { amount } = request.body
   const userId = await request.getCurrentUserId()
-  const user = await findUserByIdService(userId)
 
-  if (!user) {
-    throw new NotFoundError('User not found')
-  }
+  await queueOrder('buy', amount, userId)
 
-  const purchase = await processPurchase(userId, amount)
-  await sendMail(
-    {
-      body: `Hi ${user.name}, the value of ${amount} BTC for ${purchase.amountInvested.toFixed(2)} BRL has been purchase!`,
-      subject: 'BTC Purchase',
-      to: user.email,
-    },
-    userId,
-  )
   return reply.status(200).send({ message: 'Buy order processed successfully' })
 }
 
@@ -53,21 +35,9 @@ export async function sellOrderHandler(
 ) {
   const { amount, position } = request.body
   const userId = await request.getCurrentUserId()
-  const user = await findUserByIdService(userId)
 
-  if (!user) {
-    throw new NotFoundError('User not found')
-  }
+  await queueOrder('buy', amount, userId, position)
 
-  const saleValue = await processSale(userId, position, amount)
-  await sendMail(
-    {
-      body: `Hi ${user.name}, the value of ${amount} BTC has been sold for ${saleValue.toFixed(2)}!`,
-      subject: 'BTC Sold',
-      to: user.email,
-    },
-    userId,
-  )
   return reply
     .status(200)
     .send({ message: 'Sell order processed successfully' })

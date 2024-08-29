@@ -3,6 +3,9 @@ import { BadRequestError } from '../../errors/bad-request-error.js'
 import { NotFoundError } from '../../errors/not-found-error.js'
 import { fetchTickerData } from '../../integration/btc.api.js'
 import { db } from '../../lib/prisma.js'
+import { sendMail } from '../../integration/mail.js'
+import { logger } from '../../logger/logger.js'
+import { findUserByIdService } from '../user/user.service.js'
 
 async function validatePurchase(wallet: Wallet, btc: any, amount: number) {
   const purchaseValue = Number(btc.buy) * amount
@@ -29,7 +32,11 @@ async function validateSale(
 export async function processPurchase(userId: string, amount: number) {
   const wallet = await db.wallet.findFirst({ where: { userId } })
   const btc = await fetchTickerData()
+  const user = await findUserByIdService(userId)
 
+  if (!user) {
+    throw new NotFoundError('User not found')
+  }
   if (!wallet) throw new NotFoundError('Wallet not found')
 
   await validatePurchase(wallet, btc, amount)
@@ -53,6 +60,19 @@ export async function processPurchase(userId: string, amount: number) {
     },
   })
 
+  await sendMail(
+    {
+      body: `Hi ${user.name}, the value of ${amount} BTC for ${purchaseValue.toFixed(2)} BRL has been purchase!`,
+      subject: 'BTC Purchase',
+      to: user.email,
+    },
+    userId,
+  )
+
+  logger.info(
+    `Purchase of ${amount} BTC from investment ${investmnent.id} for user ${userId} has been processed`,
+  )
+
   return investmnent
 }
 
@@ -62,12 +82,17 @@ export async function processSale(
   amount: number,
 ) {
   const wallet = await db.wallet.findFirst({ where: { userId } })
+  const btc = await fetchTickerData()
+  const user = await findUserByIdService(userId)
   const investment = await db.investment.findFirst({
     where: { id: position, userId },
   })
-  const btc = await fetchTickerData()
 
+  if (!user) {
+    throw new NotFoundError('User not found')
+  }
   if (!wallet) throw new NotFoundError('Wallet not found')
+
   if (!investment) throw new NotFoundError('Investment not found')
 
   await validateSale(wallet, investment, amount)
@@ -102,7 +127,16 @@ export async function processSale(
     })
   })
 
-  console.log(
+  await sendMail(
+    {
+      body: `Hi ${user.name}, the value of ${amount} BTC has been sold for ${saleValue.toFixed(2)}!`,
+      subject: 'BTC Sold',
+      to: user.email,
+    },
+    userId,
+  )
+
+  logger.info(
     `Sale of ${amount} BTC from investment ${position} for user ${userId} has been processed`,
   )
 

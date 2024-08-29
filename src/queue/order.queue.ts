@@ -30,7 +30,7 @@ orderQueue.process(async (job) => {
     )
   }
 
-  if (wallet.amount_btc < amount) {
+  if (type === 'sell' && wallet.amount_btc < amount) {
     throw new BadRequestError(
       `Insufficient BTC balance to sell for user ${userId}`,
     )

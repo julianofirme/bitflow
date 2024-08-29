@@ -9,10 +9,17 @@ const exchangeSchema = z.object({
     .nonnegative(),
 })
 
+const priceSchema = z.object({
+  buy: z.string(),
+  sell: z.string(),
+  open: z.string(),
+})
+
 export type ExchangeInput = z.infer<typeof exchangeSchema>
 
 const models = {
   exchangeSchema,
+  priceSchema,
 }
 
 export const { schemas: exchangeSchemas, $ref } = buildJsonSchemas(models, {

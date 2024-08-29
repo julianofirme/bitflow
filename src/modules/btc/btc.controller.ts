@@ -1,5 +1,7 @@
 import { type FastifyRequest, type FastifyReply } from 'fastify'
 import { queueOrder } from './btc.queue.js'
+import { fetchTickerData } from '../../integration/btc.api.js'
+import { logger } from '../../logger/logger.js'
 
 export async function purchaseBTCHandler(
   request: FastifyRequest<{
@@ -7,7 +9,6 @@ export async function purchaseBTCHandler(
   }>,
   reply: FastifyReply,
 ) {
-  const logger = request.log
   const userId = await request.getCurrentUserId()
   const { amount } = request.body
 
@@ -26,7 +27,6 @@ export async function sellBTCHandler(
   }>,
   reply: FastifyReply,
 ) {
-  const logger = request.log
   const userId = await request.getCurrentUserId()
   const { amount } = request.body
 
@@ -37,4 +37,19 @@ export async function sellBTCHandler(
   return reply
     .code(202)
     .send({ message: 'Sell request accepted and is being processed.' })
+}
+
+export async function priceBTCHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const currentBTC = await fetchTickerData()
+
+  logger.info('Current BTC price has been fetched successfully.')
+
+  return reply.code(200).send({
+    sell: currentBTC.sell,
+    buy: currentBTC.buy,
+    open: currentBTC.open,
+  })
 }

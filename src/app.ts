@@ -13,6 +13,8 @@ import btcRoutes from './modules/btc/btc.route.js'
 import { investmentRoutes } from './modules/investment/investment.route.js'
 import { investmentSchemas } from './modules/investment/investment.schema.js'
 import fastifyHelmet from '@fastify/helmet'
+import fastifySwagger from '@fastify/swagger'
+import fastifySwaggerUi from '@fastify/swagger-ui'
 
 const app = fastify({
   logger: {
@@ -44,6 +46,41 @@ app.register(userRoutes)
 app.register(walletRoutes)
 app.register(btcRoutes)
 app.register(investmentRoutes)
+
+app.register(fastifySwagger, {})
+app.register(fastifySwaggerUi, {
+  routePrefix: '/docs',
+  swagger: {
+    info: {
+      title: 'Bitflow',
+      description: 'A REST Api to invest in BTC!',
+      version: '1.0.0',
+      contact: {
+        name: 'Juliano Firme',
+        url: '',
+        email: 'bitflow@gmail.com',
+      },
+    },
+    host: '0.0.0.0:3000',
+    basePath: '/',
+    schemes: ['http', 'https'],
+    consumes: ['application/json'],
+    produces: ['application/json'],
+  },
+  uiConfig: {
+    docExpansion: 'full', // expand/not all the documentations none|list|full
+    deepLinking: false,
+  },
+  staticCSP: false,
+  transformStaticCSP: (header: any) => header,
+  exposeRoute: true,
+})
+
+// Executes Swagger
+app.ready((err) => {
+  if (err) throw err
+  app.swagger()
+})
 
 for (const schema of [
   ...userSchemas,

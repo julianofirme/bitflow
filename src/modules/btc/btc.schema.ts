@@ -12,5 +12,5 @@ const models = {
 }
 
 export const { schemas: btcSchemas, $ref } = buildJsonSchemas(models, {
-  $id: 'btcSchema',
+  $id: 'BTC',
 })

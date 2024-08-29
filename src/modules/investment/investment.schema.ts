@@ -44,5 +44,5 @@ const models = {
 }
 
 export const { schemas: investmentSchemas, $ref } = buildJsonSchemas(models, {
-  $id: 'investmentSchema',
+  $id: 'Investment',
 })

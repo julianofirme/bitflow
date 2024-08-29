@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { BadRequestError } from '../errors/bad-request-error.js'
 import { UnauthorizedError } from '../errors/unauthorized-error.js'
+import { NotFoundError } from '../errors/not-found-error.js'
 
 type FastifyErrorHandler = FastifyInstance['errorHandler']
 
@@ -24,6 +25,13 @@ export const errorHandler: FastifyErrorHandler = (error, request, reply) => {
   if (error instanceof UnauthorizedError) {
     logger.error(error)
     reply.status(401).send({
+      error: error.message,
+    })
+  }
+
+  if (error instanceof NotFoundError) {
+    logger.error(error)
+    reply.status(404).send({
       error: error.message,
     })
   }

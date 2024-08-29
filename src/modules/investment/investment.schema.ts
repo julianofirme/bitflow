@@ -37,7 +37,7 @@ const priceSchema = z.object({
 export type ExchangeInput = z.infer<typeof exchangeSchema>
 export type SellInput = z.infer<typeof sellSchema>
 
-const models = {
+export const models = {
   exchangeSchema,
   sellSchema,
   priceSchema,

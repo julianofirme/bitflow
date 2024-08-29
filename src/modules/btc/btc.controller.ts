@@ -2,6 +2,7 @@ import { type FastifyRequest, type FastifyReply } from 'fastify'
 import { queueOrder } from './btc.queue.js'
 import { fetchTickerData } from '../../integration/btc.api.js'
 import { logger } from '../../logger/logger.js'
+import { getInvestmentPosition } from './btc.service.js'
 
 export async function purchaseBTCHandler(
   request: FastifyRequest<{
@@ -52,4 +53,14 @@ export async function priceBTCHandler(
     buy: currentBTC.buy,
     open: currentBTC.open,
   })
+}
+
+export async function getInvestmentPositionHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const userId = await request.getCurrentUserId()
+
+  const investments = await getInvestmentPosition(userId)
+  return reply.code(200).send(investments)
 }

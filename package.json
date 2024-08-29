@@ -12,7 +12,8 @@
     "coverage": "env-cmd -f .env.test vitest run --coverage",
     "db:local": "env-cmd -f .env docker compose up -d",
     "db:push": "npx prisma db push",
-    "db:studio": "npx prisma studio"
+    "db:studio": "npx prisma studio",
+    "db:migrate-dev": "npx prisma migrate dev"
   },
   "keywords": [],
   "author": "",

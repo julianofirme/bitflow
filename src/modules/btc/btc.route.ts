@@ -5,9 +5,21 @@ import {
   purchaseBTCHandler,
   sellBTCHandler,
   priceBTCHandler,
+  getInvestmentPositionHandler,
 } from './btc.controller.js'
 
 async function btcRoutes(server: FastifyInstance) {
+  server.register(auth).get(
+    '/btc',
+    // {
+    //   schema: {
+    //     response: {
+    //       200: $ref('investmentPositionSchema'),
+    //     },
+    //   },
+    // },
+    getInvestmentPositionHandler,
+  )
   server.register(auth).get(
     '/btc/price',
     {

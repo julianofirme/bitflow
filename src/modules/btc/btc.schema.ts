@@ -15,11 +15,21 @@ const priceSchema = z.object({
   open: z.string(),
 })
 
+export const investmentPositionSchema = z.object({
+  id: z.string(),
+  purchaseDate: z.string(),
+  amountInvested: z.string(),
+  btcPriceAtPurchase: z.string(),
+  priceVariation: z.string(),
+  currentGrossValue: z.string(),
+})
+
 export type ExchangeInput = z.infer<typeof exchangeSchema>
 
 const models = {
   exchangeSchema,
   priceSchema,
+  investmentPositionSchema,
 }
 
 export const { schemas: exchangeSchemas, $ref } = buildJsonSchemas(models, {

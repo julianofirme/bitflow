@@ -10,6 +10,7 @@ export async function validateUserBalance(
 ) {
   const wallet = await db.wallet.findFirst({ where: { userId } })
   const btc = await fetchTickerData()
+
   if (!wallet) throw new NotFoundError('Wallet not found')
 
   if (type === 'buy') {
@@ -17,6 +18,15 @@ export async function validateUserBalance(
 
     if (wallet.amount < purchaseValue)
       throw new BadRequestError('Insufficient funds')
+
+    await db.investment.create({
+      data: {
+        userId,
+        amountInvested: purchaseValue,
+        btcAmount: amount,
+        btcPriceAtPurchase: Number(btc.buy),
+      },
+    })
 
     await db.wallet.update({
       where: { id: wallet.id },
@@ -29,4 +39,34 @@ export async function validateUserBalance(
       throw new BadRequestError('Insufficient BTC balance to sell')
     }
   }
+}
+export async function getInvestmentPosition(userId: string) {
+  const investments = await db.investment.findMany({
+    where: { userId },
+  })
+
+  if (investments.length === 0) {
+    return []
+  }
+
+  const currentBTC = await fetchTickerData()
+  const currentBTCPrice = Number(currentBTC.last)
+
+  return investments.map((investment) => {
+    const priceVariation =
+      ((currentBTCPrice - investment.btcPriceAtPurchase) /
+        investment.btcPriceAtPurchase) *
+      100
+
+    const currentGrossValue = investment.btcAmount * currentBTCPrice
+
+    return {
+      id: investment.id,
+      purchaseDate: investment.purchaseDate,
+      amountInvested: investment.amountInvested,
+      btcPriceAtPurchase: investment.btcPriceAtPurchase,
+      priceVariation,
+      currentGrossValue,
+    }
+  })
 }

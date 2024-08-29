@@ -11,13 +11,14 @@ model User {
   id           String   @id @default(uuid())
   name         String?
   email        String   @unique
-  passwordHash String  @map("password_hash")
-  salt         String  @map("salt")
+  passwordHash String   @map("password_hash")
+  salt         String   @map("salt")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  deposits     Deposit[]
-  Wallet      Wallet[]
+  deposits   Deposit[]
+  Wallet     Wallet[]
+  Investment Investment[]
 
   @@map("users")
 }
@@ -34,13 +35,27 @@ model Deposit {
 }
 
 model Wallet {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  amount    Float    @map("amount")
-  amount_btc    Float    @map("amount_btc")
-  createdAt DateTime @default(now()) @map("created_at")
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  amount     Float    @map("amount")
+  amount_btc Float    @map("amount_btc")
+  createdAt  DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id])
 
   @@map("wallets")
+}
+
+model Investment {
+  id                 String   @id @default(uuid())
+  userId             String   @map("user_id")
+  user               User     @relation(fields: [userId], references: [id])
+  purchaseDate       DateTime @default(now()) @map("purchase_date")
+  amountInvested     Float    @map("amount_invested")
+  btcPriceAtPurchase Float    @map("btc_price_at_purchase")
+  btcAmount          Float    @map("btc_amount")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("investment")
 }

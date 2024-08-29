@@ -12,6 +12,7 @@ import { btcSchemas } from './modules/btc/btc.schema.js'
 import btcRoutes from './modules/btc/btc.route.js'
 import { investmentRoutes } from './modules/investment/investment.route.js'
 import { investmentSchemas } from './modules/investment/investment.schema.js'
+import fastifyHelmet from '@fastify/helmet'
 
 const app = fastify({
   logger: {
@@ -30,6 +31,8 @@ app.register(fastifyCors, {
   origin: '*',
   credentials: true,
 })
+
+app.register(fastifyHelmet, { global: true })
 
 app.get('/healthcheck', async function () {
   return {

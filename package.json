@@ -9,6 +9,7 @@
     "dev": "tsx watch src/server.ts",
     "start": "tsc && node dist/server",
     "test:int": "env-cmd -f .env.test ./scripts/run-integration.sh",
+    "test:unit": "vitest -c ./vitest.config.unit.ts",
     "coverage": "env-cmd -f .env.test vitest run --coverage",
     "db:local": "env-cmd -f .env docker compose up -d",
     "db:push": "npx prisma db push",

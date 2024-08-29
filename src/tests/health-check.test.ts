@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import app from './helpers/fastify.js'
+import app from './integration/helpers/fastify.js'
 
 test.only('GET /healthcheck should return status OK', async () => {
   const response = await app.inject({

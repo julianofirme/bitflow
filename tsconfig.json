@@ -5,6 +5,11 @@
     "declaration": false,
     "sourceMap": true
   },
-  "include": ["src/**/*.ts", "global.d.ts", "vitest.config.integration.ts"],
+  "include": [
+    "src/**/*.ts",
+    "global.d.ts",
+    "vitest.config.integration.ts",
+    "vitest.config.unit.ts"
+  ],
   "exclude": [".eslintrc.js"]
 }

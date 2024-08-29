@@ -8,6 +8,7 @@ export const investmentPositionSchema = z.object({
   btcPriceAtPurchase: z.string(),
   priceVariation: z.string(),
   currentGrossValue: z.string(),
+  btcAmount: z.string(),
 })
 
 const exchangeSchema = z.object({

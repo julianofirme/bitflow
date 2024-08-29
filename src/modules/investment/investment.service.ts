@@ -161,6 +161,7 @@ export async function getInvestmentPosition(userId: string) {
       btcPriceAtPurchase: investment.btcPriceAtPurchase,
       priceVariation,
       currentGrossValue,
+      btcAmount: investment.btcAmount,
     }
   })
 }

@@ -50,33 +50,14 @@ app.register(investmentRoutes)
 app.register(fastifySwagger, {})
 app.register(fastifySwaggerUi, {
   routePrefix: '/docs',
-  swagger: {
-    info: {
-      title: 'Bitflow',
-      description: 'A REST Api to invest in BTC!',
-      version: '1.0.0',
-      contact: {
-        name: 'Juliano Firme',
-        url: '',
-        email: 'bitflow@gmail.com',
-      },
-    },
-    host: '0.0.0.0:3000',
-    basePath: '/',
-    schemes: ['http', 'https'],
-    consumes: ['application/json'],
-    produces: ['application/json'],
-  },
   uiConfig: {
-    docExpansion: 'full', // expand/not all the documentations none|list|full
+    docExpansion: 'full',
     deepLinking: false,
   },
   staticCSP: false,
   transformStaticCSP: (header: any) => header,
-  exposeRoute: true,
 })
 
-// Executes Swagger
 app.ready((err) => {
   if (err) throw err
   app.swagger()

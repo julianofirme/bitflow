@@ -18,14 +18,14 @@ async function mailer({ body, subject, to }: MailerProps) {
   })
 }
 
-export async function sendMail(content: MailerProps, userId: string) {
+export async function sendMail(content: MailerProps) {
   const { data, error } = await mailer(content)
 
   if (error) {
     logger.error(`Error sending email: ${error.message}`)
   } else {
     logger.info(
-      `Email ID: ${data?.id} - Deposit email was sent to user ${userId}`,
+      `Email ID: ${data?.id} - ${content.subject} email was sent to user ${content.to}`,
     )
   }
 }

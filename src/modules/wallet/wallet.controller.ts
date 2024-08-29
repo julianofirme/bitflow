@@ -36,15 +36,15 @@ export async function depositHandler(
   }
 
   const { amount } = request.body
-  logger.info(`User ${userId} attempting to deposit ${amount} reais`)
+  logger.info(`User ${userId} attempting to deposit ${amount} BRL`)
 
   const wallet = await deposit(amount, userId)
 
-  logger.info(`User ${userId} deposited ${amount} reais successfully`)
+  logger.info(`User ${userId} deposited ${amount} BRL successfully`)
 
   await sendMail(
     {
-      body: `Hi ${user.name}, the value of ${amount} reais has been deposited in your account!`,
+      body: `Hi ${user.name}, the value of ${amount} BRL has been deposited in your account!`,
       subject: 'Deposit',
       to: user.email,
     },

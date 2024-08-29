@@ -33,10 +33,10 @@ export async function buyOrderHandler(
     throw new NotFoundError('User not found')
   }
 
-  await processPurchase(userId, amount)
+  const purchase = await processPurchase(userId, amount)
   await sendMail(
     {
-      body: `Hi ${user.name}, the value of ${amount} BTC has been purchase!`,
+      body: `Hi ${user.name}, the value of ${amount} BTC for ${purchase.amountInvested.toFixed(2)} BRL has been purchase!`,
       subject: 'BTC Purchase',
       to: user.email,
     },
@@ -59,10 +59,10 @@ export async function sellOrderHandler(
     throw new NotFoundError('User not found')
   }
 
-  await processSale(userId, position, amount)
+  const saleValue = await processSale(userId, position, amount)
   await sendMail(
     {
-      body: `Hi ${user.name}, the value of ${amount} BTC has been sold!`,
+      body: `Hi ${user.name}, the value of ${amount} BTC has been sold for ${saleValue.toFixed(2)}!`,
       subject: 'BTC Sold',
       to: user.email,
     },

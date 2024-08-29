@@ -36,7 +36,7 @@ export async function processPurchase(userId: string, amount: number) {
 
   const purchaseValue = Number(btc.buy) * amount
 
-  await db.investment.create({
+  const investmnent = await db.investment.create({
     data: {
       userId,
       amountInvested: purchaseValue,
@@ -52,6 +52,8 @@ export async function processPurchase(userId: string, amount: number) {
       amount_btc: { increment: amount },
     },
   })
+
+  return investmnent
 }
 
 export async function processSale(
@@ -103,6 +105,8 @@ export async function processSale(
   console.log(
     `Sale of ${amount} BTC from investment ${position} for user ${userId} has been processed`,
   )
+
+  return saleValue
 }
 
 export async function getInvestmentPosition(userId: string) {

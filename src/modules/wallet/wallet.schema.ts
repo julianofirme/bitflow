@@ -15,7 +15,7 @@ const depositSchema = z.object({
 
 export type DepositInput = z.infer<typeof depositSchema>
 
-const models = {
+export const models = {
   userBalanceResponseSchema,
   depositSchema,
 }

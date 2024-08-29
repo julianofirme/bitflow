@@ -7,7 +7,7 @@ const priceSchema = z.object({
   open: z.string(),
 })
 
-const models = {
+export const models = {
   priceSchema,
 }
 

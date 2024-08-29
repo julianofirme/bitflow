@@ -8,8 +8,10 @@ import walletRoutes from './modules/wallet/wallet.route.js'
 import { userSchemas } from './modules/user/user.schema.js'
 import { walletSchemas } from './modules/wallet/wallet.schema.js'
 import { errorHandler } from './utils/error-handler.js'
-import { exchangeSchemas } from './modules/btc/btc.schema.js'
+import { btcSchemas } from './modules/btc/btc.schema.js'
 import btcRoutes from './modules/btc/btc.route.js'
+import { investmentRoutes } from './modules/investment/investment.route.js'
+import { investmentSchemas } from './modules/investment/investment.schema.js'
 
 const app = fastify({
   logger: {
@@ -38,8 +40,14 @@ app.get('/healthcheck', async function () {
 app.register(userRoutes)
 app.register(walletRoutes)
 app.register(btcRoutes)
+app.register(investmentRoutes)
 
-for (const schema of [...userSchemas, ...walletSchemas, ...exchangeSchemas]) {
+for (const schema of [
+  ...userSchemas,
+  ...walletSchemas,
+  ...btcSchemas,
+  ...investmentSchemas,
+]) {
   app.addSchema(schema)
 }
 

@@ -36,7 +36,7 @@ export async function sellOrderHandler(
   const { amount, position } = request.body
   const userId = await request.getCurrentUserId()
 
-  await queueOrder('buy', amount, userId, position)
+  await queueOrder('sell', amount, userId, position)
 
   return reply
     .status(200)

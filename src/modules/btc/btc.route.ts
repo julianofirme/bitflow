@@ -1,25 +1,9 @@
 import { type FastifyInstance } from 'fastify'
 import { auth } from '../../middleware/auth.js'
 import { $ref } from './btc.schema.js'
-import {
-  purchaseBTCHandler,
-  sellBTCHandler,
-  priceBTCHandler,
-  getInvestmentPositionHandler,
-} from './btc.controller.js'
+import { priceBTCHandler } from './btc.controller.js'
 
 async function btcRoutes(server: FastifyInstance) {
-  server.register(auth).get(
-    '/btc',
-    // {
-    //   schema: {
-    //     response: {
-    //       200: $ref('investmentPositionSchema'),
-    //     },
-    //   },
-    // },
-    getInvestmentPositionHandler,
-  )
   server.register(auth).get(
     '/btc/price',
     {
@@ -30,24 +14,6 @@ async function btcRoutes(server: FastifyInstance) {
       },
     },
     priceBTCHandler,
-  )
-  server.register(auth).post(
-    '/btc/purchase',
-    {
-      schema: {
-        body: $ref('exchangeSchema'),
-      },
-    },
-    purchaseBTCHandler,
-  )
-  server.register(auth).post(
-    '/btc/sell',
-    {
-      schema: {
-        body: $ref('exchangeSchema'),
-      },
-    },
-    sellBTCHandler,
   )
 }
 

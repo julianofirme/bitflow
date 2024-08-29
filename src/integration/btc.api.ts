@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import axios from 'axios'
 
-interface TickerData {
+export interface TickerData {
   high: string
   low: string
   vol: string

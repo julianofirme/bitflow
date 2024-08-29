@@ -56,12 +56,12 @@ export async function processPurchase(userId: string, amount: number) {
 
 export async function processSale(
   userId: string,
-  investmentId: string,
+  position: string,
   amount: number,
 ) {
   const wallet = await db.wallet.findFirst({ where: { userId } })
   const investment = await db.investment.findFirst({
-    where: { id: investmentId, userId },
+    where: { id: position, userId },
   })
   const btc = await fetchTickerData()
 
@@ -101,7 +101,7 @@ export async function processSale(
   })
 
   console.log(
-    `Sale of ${amount} BTC from investment ${investmentId} for user ${userId} has been processed`,
+    `Sale of ${amount} BTC from investment ${position} for user ${userId} has been processed`,
   )
 }
 

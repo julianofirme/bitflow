@@ -24,7 +24,7 @@ const sellSchema = z.object({
       required_error: 'Amount is required',
     })
     .nonnegative(),
-  investmentId: z.string(),
+  position: z.string(),
 })
 
 const priceSchema = z.object({

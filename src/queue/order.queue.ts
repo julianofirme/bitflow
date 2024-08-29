@@ -9,7 +9,7 @@ interface JobDataProps {
   type: 'buy' | 'sell'
   amount: number
   userId: string
-  investmentId: string
+  position: string
 }
 
 export const orderQueue = new Bull('order-queue', {
@@ -17,12 +17,12 @@ export const orderQueue = new Bull('order-queue', {
 })
 
 orderQueue.process(async (job: { data: JobDataProps }) => {
-  const { type, amount, userId, investmentId } = job.data
+  const { type, amount, userId, position } = job.data
 
   if (type === 'buy') {
     await processPurchase(userId, amount)
   } else if (type === 'sell') {
-    await processSale(userId, investmentId, amount)
+    await processSale(userId, position, amount)
   }
 })
 

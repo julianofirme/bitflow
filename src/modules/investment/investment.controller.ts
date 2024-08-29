@@ -32,9 +32,9 @@ export async function sellOrderHandler(
   }>,
   reply: FastifyReply,
 ) {
-  const { amount, investmentId } = request.body
+  const { amount, position } = request.body
   const userId = await request.getCurrentUserId()
 
-  await queueOrder('sell', amount, userId, investmentId)
+  await queueOrder('sell', amount, userId, position)
   return reply.status(200).send({ message: 'Sell order queued successfully' })
 }

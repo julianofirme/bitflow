@@ -4,7 +4,7 @@ export async function queueOrder(
   type: 'buy' | 'sell',
   amount: number,
   userId: string,
-  investmentId?: string,
+  position?: string,
 ) {
-  await orderQueue.add({ type, amount, userId, investmentId })
+  await orderQueue.add({ type, amount, userId, position })
 }

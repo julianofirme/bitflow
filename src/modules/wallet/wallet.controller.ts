@@ -42,14 +42,11 @@ export async function depositHandler(
 
   logger.info(`User ${userId} deposited ${amount} BRL successfully`)
 
-  await sendMail(
-    {
-      body: `Hi ${user.name}, the value of ${amount} BRL has been deposited in your account!`,
-      subject: 'Deposit',
-      to: user.email,
-    },
-    userId,
-  )
+  await sendMail({
+    body: `Hi ${user.name}, the value of ${amount} BRL has been deposited in your account!`,
+    subject: 'Deposit',
+    to: user.email,
+  })
 
   return await reply.code(200).send(wallet)
 }

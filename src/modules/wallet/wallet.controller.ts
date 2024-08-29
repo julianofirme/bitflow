@@ -3,6 +3,7 @@ import { getUserWalletBalance, deposit } from './wallet.service.js'
 import { type DepositInput } from './wallet.schema.js'
 import { sendMail } from '../../integration/mail.js'
 import { findUserByIdService } from '../user/user.service.js'
+import { NotFoundError } from '../../errors/not-found-error.js'
 
 export async function getUserBalanceHandler(
   request: FastifyRequest,
@@ -31,7 +32,7 @@ export async function depositHandler(
   const user = await findUserByIdService(userId)
 
   if (!user) {
-    return await reply.code(404).send({ error: 'User not found' })
+    throw new NotFoundError('User not found')
   }
 
   const { amount } = request.body

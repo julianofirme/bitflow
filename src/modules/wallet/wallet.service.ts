@@ -1,7 +1,8 @@
+import { NotFoundError } from '../../errors/not-found-error.js'
 import { db } from '../../lib/prisma.js'
 
 export async function getUserWalletBalance(userId: string) {
-  return await db.wallet.findFirst({
+  const wallet = await db.wallet.findFirst({
     where: {
       userId,
     },
@@ -12,6 +13,12 @@ export async function getUserWalletBalance(userId: string) {
       amount_btc: true,
     },
   })
+
+  if (!wallet) {
+    throw new NotFoundError('Wallet not found')
+  }
+
+  return wallet
 }
 
 export async function deposit(amount: number, userId: string) {
@@ -21,7 +28,7 @@ export async function deposit(amount: number, userId: string) {
     })
 
     if (!wallet) {
-      throw new Error('invalid wallet')
+      throw new NotFoundError('Wallet not found')
     }
 
     const updatedWallet = await transaction.wallet.update({
@@ -46,7 +53,7 @@ export async function depositBTC(amount: number, userId: string) {
     })
 
     if (!wallet) {
-      throw new Error('invalid wallet')
+      throw new NotFoundError('Wallet not found')
     }
 
     const updatedWallet = await transaction.wallet.update({

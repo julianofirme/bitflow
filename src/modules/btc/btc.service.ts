@@ -1,4 +1,5 @@
 import { BadRequestError } from '../../errors/bad-request-error.js'
+import { NotFoundError } from '../../errors/not-found-error.js'
 import { fetchTickerData } from '../../integration/btc.api.js'
 import { db } from '../../lib/prisma.js'
 
@@ -9,11 +10,11 @@ export async function validateUserBalance(
 ) {
   const wallet = await db.wallet.findFirst({ where: { userId } })
   const btc = await fetchTickerData()
+  if (!wallet) throw new NotFoundError('Wallet not found')
 
   if (type === 'buy') {
     const purchaseValue = Number(btc.buy) * amount
 
-    if (!wallet) throw new BadRequestError('Wallet not found')
     if (wallet.amount < purchaseValue)
       throw new BadRequestError('Insufficient funds')
 
@@ -23,7 +24,6 @@ export async function validateUserBalance(
     })
   }
 
-  if (!wallet) throw new BadRequestError('Wallet not found')
   if (type === 'sell') {
     if (wallet.amount_btc < amount) {
       throw new BadRequestError('Insufficient BTC balance to sell')

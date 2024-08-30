@@ -15,7 +15,8 @@
     "db:push": "npx prisma db push",
     "db:deploy": "npx prisma migrate deploy",
     "db:studio": "npx prisma studio",
-    "db:migrate-dev": "npx prisma migrate dev"
+    "db:migrate-dev": "npx prisma migrate dev",
+    "start:migrate:prod": "prisma migrate deploy && npm run start"
   },
   "keywords": [],
   "author": "",

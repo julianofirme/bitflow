@@ -45,7 +45,7 @@ npm run db:push
 
 If you have migrations, apply them with:
 ``` bash
-npm run db:migrate-dev
+npm run db:deploy
 ```
 ## Open Prisma Studio
 
@@ -66,9 +66,12 @@ This command will start the development server with hot reloading.
 
 To build and start the project for production, first compile the TypeScript code:
 ```bash
+npm run build
+```
+Then start the server
+```bash
 npm run start
 ```
-This will compile the TypeScript code and start the server.
 
 ## Running Tests
 Integration Tests
@@ -78,4 +81,12 @@ Run integration tests with:
 ```bash
 npm run test:int
 ```
+Unit Tests
+
 Make sure your .env.test file is correctly configured for testing.
+
+Run unit tests with:
+
+```bash
+npm run test:unit
+```

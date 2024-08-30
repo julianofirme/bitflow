@@ -10,13 +10,13 @@ import { $ref } from './investment.schema.js'
 export async function investmentRoutes(server: FastifyInstance) {
   server.register(auth).get(
     '/btc',
-    // {
-    //   schema: {
-    //     response: {
-    //       200: $ref('investmentPositionSchema'),
-    //     },
-    //   },
-    // },
+    {
+      schema: {
+        response: {
+          200: $ref('investmentPositionSchema'),
+        },
+      },
+    },
     getInvestmentPositionHandler,
   )
   server.register(auth).post(

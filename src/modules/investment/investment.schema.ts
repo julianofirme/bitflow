@@ -1,15 +1,17 @@
 import { z } from 'zod'
 import { buildJsonSchemas } from 'fastify-zod'
 
-export const investmentPositionSchema = z.object({
-  id: z.string(),
-  purchaseDate: z.string(),
-  amountInvested: z.string(),
-  btcPriceAtPurchase: z.string(),
-  priceVariation: z.string(),
-  currentGrossValue: z.string(),
-  btcAmount: z.string(),
-})
+const investmentPositionSchema = z.array(
+  z.object({
+    id: z.string(),
+    purchaseDate: z.string(),
+    amountInvested: z.string(),
+    btcPriceAtPurchase: z.string(),
+    priceVariation: z.string(),
+    currentGrossValue: z.string(),
+    btcAmount: z.string(),
+  }),
+)
 
 const exchangeSchema = z.object({
   amount: z
@@ -41,6 +43,7 @@ export const models = {
   exchangeSchema,
   sellSchema,
   priceSchema,
+  investmentPositionSchema,
 }
 
 export const { schemas: investmentSchemas, $ref } = buildJsonSchemas(models, {

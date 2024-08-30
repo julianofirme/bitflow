@@ -1,6 +1,6 @@
 # Bitflow API
 
-## Tutorial: Setting Up and Running Your Project
+## Tutorial: Setting Up
 - Node.js: Ensure you have Node.js installed (preferably the latest LTS version).
 - Docker: Install Docker and Docker Compose if you plan to use the db:local script.
 - TypeScript: The project uses TypeScript, so make sure it's set up correctly in your environment.
